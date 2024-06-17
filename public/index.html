@@ -1,0 +1,74 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Application</title>
+  <style>
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      padding: 8px;
+      margin-bottom: 10px;
+      background-color: #f1f1f1;
+      border-radius: 4px;
+    }
+    #form {
+      display: flex;
+    }
+    #input {
+      flex-grow: 1;
+      padding: 10px;
+    }
+    #sendButton {
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <ul id="messages"></ul>
+  <form id="form" action="">
+    <input id="input" autocomplete="off" /><button id="sendButton">Send</button>
+  </form>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Njc1OTJiNmVmOTBkYTc5ZDkyYjMzZiIsImlhdCI6MTcxODYxNzE0MywiZXhwIjoxNzE4NjIwNzQzfQ.Fs9dZnAlE_RIFEF-GkR3rfRnqohAAwLf6qahdvGh-2M"
+    const socket = io({
+        auth: {
+            token
+        }
+    });
+    socket.on('connect', () => {
+      console.log('Connected to server');
+    });
+    
+
+    socket.on('receiveMessage', (msg) => {
+      console.log(`Message ID: ${msg.id}, Sender: ${msg.sender}, Receiver: ${msg.receiver}, Content: ${msg.content}`);
+    });
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+    const messages = document.getElementById('messages');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (input.value) {
+        socket.emit('chat_message', {
+          content: input.value,
+          chatroomId: '66700523e662c1d8f609882d'
+        });
+        input.value = '';
+      }
+    });
+
+    socket.on('chat_message', (msg) => {
+      console.log(msg);
+      const item = document.createElement('li');
+      item.textContent = msg.content;
+      messages.appendChild(item);
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+  </script>
+</body>
+</html>
